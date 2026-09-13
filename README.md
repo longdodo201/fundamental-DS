@@ -324,8 +324,7 @@ Possible methods include:
 
 * User preference vectors
 * K-Means clustering
-* Similarity-based recommendation
-* K-Nearest Neighbors
+* cluster based recomendation
 
 The EDA from the midterm provides the foundation for these later steps.
 
