@@ -251,8 +251,6 @@ This project uses:
 ## Project Structure
 
 ```text
-MovieLens-EDA/
-│
 ├── data/
 │   ├── movies.csv
 │   └── ratings.csv
@@ -260,8 +258,10 @@ MovieLens-EDA/
 ├── midterm.ipynb
 │
 ├── presentation/
-│   └── MovieLens_Midterm_Final.pdf
+│   └── Midterm_present(3).pptx
 │
+|__ FinalDS.ipynb
+|
 └── README.md
 ```
 
