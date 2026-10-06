@@ -1,340 +1,201 @@
-# MovieLens Exploratory Data Analysis
+# Genre-Based User Clustering for Movie Recommendation
 
 ## Overview
 
-This project performs **Exploratory Data Analysis (EDA)** on the MovieLens dataset.
+This project was developed for the **Introduction to Data Science** course.
 
-The main goal is to understand:
+The main objective is to analyze user rating behavior and group users based on their movie genre preferences using **K-Means clustering**. Instead of representing users with thousands of individual movie ratings, the project constructs a compact **User × Genre preference matrix** using mean-centered ratings.
 
-* User rating behavior
-* Movie popularity
-* Genre distribution
-* User interaction with different genres
-* User activity
-* Movie distribution by release year
-
-For the midterm stage, this project focuses on **data understanding, data preparation, visualization, and insights**.
-
-The recommendation part will be developed later in the final stage.
+The clustering result is then used as the basis for a simple **cluster-based movie recommendation module**.
 
 ---
 
 ## Dataset
 
-The project uses two main files from the MovieLens dataset:
+The project uses the **MovieLens Small Dataset**.
 
-### `movies.csv`
+Main files used:
 
-Contains movie information:
+- `movies.csv` — movie IDs, titles, and genres.
+- `ratings.csv` — user ratings for movies.
 
-* `movieId`
-* `title`
-* `genres`
+Dataset summary:
 
-### `ratings.csv`
-
-Contains user rating information:
-
-* `userId`
-* `movieId`
-* `rating`
-* `timestamp`
-
-The two datasets are connected by:
-
-```text
-movieId
-```
-
-### Dataset Summary
-
-* **610 users**
-* **9,742 movies**
-* **100,836 ratings**
-* Average rating: approximately **3.5 / 5**
+- **610 users**
+- **9,742 movies**
+- **100,836 ratings**
+- **19 genres**
+- Rating scale: **0.5 – 5.0**
 
 ---
 
-## Project Workflow
+## Methodology
+
+The main pipeline is:
 
 ```text
-MovieLens Raw Data
+MovieLens ratings + movies
         ↓
-Data Understanding
+Genre One-Hot Encoding
         ↓
-Data Quality Check
+Mean-Centered Ratings
         ↓
-Data Preparation
+User × Genre Matrix
         ↓
-Exploratory Data Analysis
+StandardScaler
         ↓
-Visualization
+K-Means Clustering
         ↓
-Key Insights
+User Preference Clusters
+        ↓
+Cluster-Based Recommendation
 ```
 
----
+### 1. User Preference Representation
 
-## Data Preparation
-
-The main preparation steps include:
-
-### 1. Data Quality Check
-
-The dataset is checked for:
-
-* Missing values
-* Duplicate rows
-* Duplicate user-movie ratings
-* Invalid rating values
-
-The MovieLens dataset is already relatively clean, so no major missing-value problems were found.
-
-### 2. Merge Datasets
-
-`movies.csv` and `ratings.csv` are merged using:
-
-```python
-movieId
-```
-
-The merged dataset contains:
+For each user and genre, the project calculates a centered preference score:
 
 ```text
-userId
-movieId
-rating
-timestamp
-title
-genres
+Centered Preference = Mean Rating for Genre - User's Overall Mean Rating
 ```
 
-### 3. Extract Release Year
+This reduces differences in individual rating scales and allows the clustering process to focus more on relative genre preferences.
 
-The release year is extracted from the movie title.
-
-Example:
+The resulting feature matrix contains:
 
 ```text
-Toy Story (1995)
+610 users × 19 genre features
 ```
 
-becomes:
+### 2. K-Means Clustering
+
+K-Means is applied to the standardized User × Genre matrix.
+
+The number of clusters is selected using multiple criteria:
+
+- SSE / Elbow Method
+- Silhouette Score
+- Cluster-size analysis
+- Stability across multiple random seeds
+
+The final selected configuration is:
 
 ```text
-Title: Toy Story (1995)
-Year: 1995
+K = 5
 ```
 
-### 4. Process Genres
+Final cluster sizes:
 
-A movie can belong to multiple genres.
+| Cluster | Number of Users |
+|--------:|----------------:|
+| 0 | 107 |
+| 1 | 279 |
+| 2 | 63 |
+| 3 | 25 |
+| 4 | 136 |
 
-Example:
+The clusters represent different patterns of movie genre preference.
+
+### 3. Cluster-Based Recommendation
+
+After clustering, recommendations are generated using ratings from other users in the same cluster.
+
+For each candidate movie, the system considers:
+
+- Average rating within the cluster
+- Number of ratings within the cluster
+- Movies already watched by the target user
+
+Candidate movies are ranked using:
 
 ```text
-Adventure|Animation|Children|Comedy|Fantasy
+score = avg_rating × log(1 + rating_count)
 ```
 
-The genres are separated so that each genre can be analyzed individually.
+The recommendation module is a **downstream application of the clustering result**, while K-Means user clustering remains the main machine learning task of the project.
 
 ---
 
-## Exploratory Data Analysis
-
-The EDA focuses on four main areas.
-
-### Rating Analysis
-
-We study the distribution of user ratings.
-
-Main observation:
-
-* Most ratings are between **3 and 5**
-* Very low ratings appear less often
-* The average rating is around **3.5**
-
----
-
-### Movie Analysis
-
-We analyze movies using:
-
-* Number of ratings
-* Average rating
-
-An important idea is:
+## Repository Structure
 
 ```text
-Popularity ≠ Average Rating
-```
-
-A movie can receive many ratings but not have the highest average score.
-
-Movies with very few ratings may also have very high average scores, so rating count should be considered together with average rating.
-
----
-
-### Genre Analysis
-
-Genre analysis includes:
-
-* Number of movies by genre
-* Number of ratings by genre
-* Average rating by genre
-
-An important observation is:
-
-```text
-Genre availability ≠ User interaction
-```
-
-A genre can receive many ratings partly because the dataset contains many movies from that genre.
-
-Therefore, a high number of ratings does not automatically mean that users prefer that genre the most.
-
----
-
-### User Analysis
-
-We analyze:
-
-* Number of ratings per user
-* Most active users
-
-The dataset shows that user activity is not equal.
-
-Some users provide many ratings, while many users provide fewer ratings.
-
-This is important for future recommendation analysis because active users provide more information about their preferences.
-
----
-
-### Movie Distribution by Year
-
-Movie release years are also analyzed.
-
-The dataset includes movies from many different periods.
-
-More movies appear in recent decades than in very early years.
-
-This visualization represents the **coverage of the MovieLens dataset**, not the real number of movies produced worldwide each year.
-
----
-
-## Key Insights
-
-The main findings from the midterm analysis are:
-
-1. Most ratings are concentrated in the middle-to-high range.
-2. Movie popularity and average rating are different concepts.
-3. Some genres contain significantly more movies than others.
-4. Genre availability and user interaction are related but not identical.
-5. Average rating should be considered together with rating count.
-6. User activity is different across users.
-7. The dataset contains movies from a wide range of release years.
-
----
-
-## Technologies
-
-This project uses:
-
-* Python
-* Pandas
-* NumPy
-* Matplotlib
-* Jupyter Notebook / Google Colab
-
----
-
-## Project Structure
-
-```text
-MovieLens-EDA/
-│
-├── data/
-│   ├── movies.csv
-│   └── ratings.csv
-│
+.
+├── Midterm_Present (3).pptx
+├── README.md
+├── Report DS.pdf
+├── finalDS.ipynb
 ├── midterm.ipynb
-│
-├── presentation/
-│   └── MovieLens_Midterm_Final.pdf
-│
-└── README.md
+├── movies.csv
+├── project summary document.docx
+└── ratings.csv
 ```
+
+### File Description
+
+| File | Description |
+|------|-------------|
+| `finalDS.ipynb` | Final notebook containing preprocessing, EDA, user-genre feature construction, K-Means clustering, cluster analysis, and recommendation implementation. |
+| `midterm.ipynb` | Notebook used for the midterm stage, mainly focusing on dataset exploration and visualization. |
+| `movies.csv` | Movie information including movie ID, title, and genres. |
+| `ratings.csv` | User-movie rating data used for analysis and modeling. |
+| `Midterm_Present (3).pptx` | Presentation slides used for the midterm presentation. |
+| `Report DS.pdf` | Final project report describing the methodology, experiments, results, evaluation, and discussion. |
+| `project summary document.docx` | Summary document providing an overview of the project and its main components. |
+| `README.md` | Overview and documentation of the repository. |
 
 ---
 
-## How to Run
+## Main Results
 
-### 1. Clone the repository
+The final model uses **K = 5** user clusters.
 
-```bash
-git clone <your-repository-url>
-```
+The clustering analysis shows that user preference groups are not strongly separated, but the selected configuration provides:
 
-### 2. Open the project
+- Usable cluster sizes
+- Reasonable stability across random seeds
+- Interpretable genre-preference profiles
+- A practical basis for cluster-based recommendation
 
-You can run the notebook using:
+The recommendation demonstration shows how the learned user segments can be used to generate Top-N movie recommendations from users with similar preference patterns.
 
-* Jupyter Notebook
-* JupyterLab
-* Google Colab
-* VS Code
+---
 
-### 3. Install required libraries
+## Limitations
 
-```bash
-pip install pandas numpy matplotlib
-```
+Current limitations include:
 
-### 4. Run the notebook
-
-Open:
-
-```text
-midterm.ipynb
-```
-
-and run the cells from top to bottom.
+- User preference changes over time are not modeled.
+- Genre distribution is imbalanced.
+- User-generated tags are not included in the feature representation.
+- New-user profiles are approximated using selected favorite genres.
+- Recommendation quality has not yet been evaluated using dedicated ranking metrics such as Precision@K, Recall@K, or NDCG.
 
 ---
 
 ## Future Work
 
-For the final stage, the project can be extended from EDA to a simple movie recommendation approach.
+Possible extensions include:
 
-Possible next steps include:
+- Time-aware user preference modeling
+- Genre weighting or imbalance handling
+- Integration of user-generated tags
+- Improved cold-start strategies
+- Quantitative evaluation of recommendation quality
 
-```text
-User Rating History
-        ↓
-User Preference Analysis
-        ↓
-User Clustering
-        ↓
-Similar Users / Similar Preferences
-        ↓
-Movie Recommendation
-```
+---
 
-Possible methods include:
+## Technologies
 
-* User preference vectors
-* K-Means clustering
-* Similarity-based recommendation
-* K-Nearest Neighbors
-
-The EDA from the midterm provides the foundation for these later steps.
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Scikit-learn
+- Jupyter Notebook
 
 ---
 
 ## Authors
 
-USTH – Introduction to Data Science Project
-
-Midterm Topic:
-
-**Exploratory Data Analysis of MovieLens Ratings**
+**Group 8**  
+Introduction to Data Science Project
