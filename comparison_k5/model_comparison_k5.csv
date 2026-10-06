@@ -1,0 +1,3 @@
+Model,K,Silhouette,Min_Cluster_Size,Max_Cluster_Size,Singleton_Clusters
+K-means,5,0.06384746593082781,25,279,0
+Agglomerative Ward,5,0.013996917873838218,10,235,0

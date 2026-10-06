@@ -1,0 +1,11 @@
+Model,Cluster,Users,Top_Genres
+K-means,0,107,"Crime (+0.251), Film-Noir (+0.223), Drama (+0.215)"
+K-means,1,279,"War (+0.311), Animation (+0.219), IMAX (+0.205)"
+K-means,2,63,"Fantasy (+0.374), Animation (+0.333), Children (+0.290)"
+K-means,3,25,"War (+0.443), Drama (+0.266), Mystery (+0.208)"
+K-means,4,136,"Mystery (+0.234), Thriller (+0.228), IMAX (+0.204)"
+Agglomerative Ward,0,126,"Crime (+0.268), Mystery (+0.267), War (+0.246)"
+Agglomerative Ward,1,235,"War (+0.309), Film-Noir (+0.270), Documentary (+0.199)"
+Agglomerative Ward,2,31,"Fantasy (+0.411), Adventure (+0.396), Animation (+0.350)"
+Agglomerative Ward,3,10,"Mystery (+0.467), Comedy (+0.446), Musical (+0.445)"
+Agglomerative Ward,4,208,"IMAX (+0.133), Animation (+0.092), Adventure (+0.075)"
